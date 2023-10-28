@@ -7,7 +7,7 @@ import (
 
 func RegisterCategory(c *fiber.Ctx) error {
 	var category Models.Category
-	
+
 	if err := c.BodyParser(&category); err != nil {
 		return c.JSON(fiber.Map{"message": "Couldn't Parse Data"})
 	}
@@ -25,4 +25,23 @@ func FetchCategories(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"message": "Couldn't Fetch Categories"})
 	}
 	return c.JSON(categories)
+}
+
+func DeleteCategory(c *fiber.Ctx) error {
+	var input struct {
+		ID uint `json:"id"`
+	}
+	if err := c.BodyParser(&input); err != nil {
+		return c.JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+	if err := Models.DB.Model(&Models.Category{}).Delete("id = ?", input.ID).Error; err != nil {
+		return c.JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+	return c.JSON(fiber.Map{
+		"message": "Category Deleted Successfully",
+	})
 }
